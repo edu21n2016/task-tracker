@@ -1,41 +1,128 @@
-.App {
-  text-align: center;
-  font-family: Arial, sans-serif;
-  margin: 20px;
+/* General Styles */
+* {
+  box-sizing: border-box;
 }
 
+body {
+  background-color: #e6f7ff; /* Light Blue Background */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.App {
+  background: #fff; /* White Card Background */
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+h1 {
+  color: #2d86c9; /* Blue Header Color */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Input and Button Styles */
 .input-container {
-  margin: 20px 0;
+  display: flex;
+  margin-bottom: 20px;
 }
 
 input {
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
-  width: 200px;
+  flex: 1;
+  border: 2px solid #ccebff; /* Light Blue Border */
+  border-radius: 6px;
+  outline: none;
 }
 
 button {
-  padding: 10px;
+  padding: 12px 20px;
   font-size: 16px;
   margin-left: 10px;
-  background-color: #4CAF50;
+  background-color: #5cb85c; /* Green Add Button */
   color: white;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #4cae4c; /* Darker Green Hover */
 }
 
+/* Filter Buttons Styles */
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.filter-buttons button {
+  background-color: #5bc0de; /* Cyan Filter Buttons */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filter-buttons button:hover {
+  background-color: #46b8da; /* Darker Cyan Hover */
+}
+
+.filter-buttons button.active {
+  background-color: #f0ad4e; /* Orange Active Filter */
+}
+
+/* Task List Styles */
 .task-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 .task-item {
-  padding: 10px;
-  border: 1px solid #ccc;
-  margin: 5px 0;
-  border-radius: 4px;
+  background-color: #f9f9f9; /* Light Gray Task Item */
+  padding: 12px;
+  border: 1px solid #ddd;
+  margin: 8px 0;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.task-item:hover {
+  background-color: #f0f0f0; /* Slightly Darker Hover */
+}
+
+.task-item.completed {
+  text-decoration: line-through;
+  color: #888; /* Gray Completed Text */
+}
+
+.task-item span {
+  flex: 1;
+  cursor: pointer;
+}
+
+.task-item button {
+  background-color: #d9534f; /* Red Delete Button */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.task-item button:hover {
+  background-color: #c9302c; /* Darker Red Hover */
 }
