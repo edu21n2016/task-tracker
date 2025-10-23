@@ -1,11 +1,19 @@
 import React from 'react';
 
 function TaskFilter({ filter, setFilter }) {
+  const filters = ['all', 'active', 'completed'];
   return (
     <div className="filter-buttons">
-      <button onClick={() => setFilter('all')} className={filter === 'all' ? 'active' : ''}>All</button>
-      <button onClick={() => setFilter('active')} className={filter === 'active' ? 'active' : ''}>Active</button>
-      <button onClick={() => setFilter('completed')} className={filter === 'completed' ? 'active' : ''}>Completed</button>
+      {filters.map(f => (
+        <button
+          key={f}
+          className={filter === f ? 'active' : ''}
+          onClick={() => setFilter(f)}
+          style={filter === f ? { background: 'linear-gradient(90deg, #6366f1, #10b981)', color: '#fff' } : {}}
+        >
+          {f.charAt(0).toUpperCase() + f.slice(1)}
+        </button>
+      ))}
     </div>
   );
 }
