@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import TaskList from './TaskList';
 import TaskFilter from './TaskFilter';
-import { DragDropContext } from '@hello-pangea/dnd';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -13,8 +12,8 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('tasks')) || [];
-    setTasks(stored);
+    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    setTasks(storedTasks);
   }, []);
 
   useEffect(() => {
@@ -23,64 +22,44 @@ function App() {
 
   const handleAddTask = () => {
     if (!inputValue.trim()) return;
+
     const newTask = {
       id: Date.now(),
       text: inputValue.trim(),
       completed: false,
-      dueDate: dueDate || null,
+      dueDate,
       priority,
     };
+
     setTasks(prev => [...prev, newTask]);
     setInputValue('');
     setDueDate('');
     setPriority('medium');
   };
 
-  // ✅ Drag and drop handler
-  const handleOnDragEnd = (result) => {
-    if (!result.destination) return;
-    const items = Array.from(tasks);
-    const [reordered] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reordered);
-    setTasks(items);
-  };
-
   const toggleTaskCompletion = (id) => {
-    setTasks(tasks.map(t => (t.id === id ? { ...t, completed: !t.completed } : t)));
+    setTasks(prev => prev.map(task => task.id === id ? { ...task, completed: !task.completed } : task));
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter(t => t.id !== id));
+    setTasks(prev => prev.filter(task => task.id !== id));
   };
 
   const editTask = (id, newText) => {
-    setTasks(tasks.map(t => (t.id === id ? { ...t, text: newText } : t)));
+    setTasks(prev => prev.map(task => task.id === id ? { ...task, text: newText } : task));
   };
-
-  const filteredTasks = tasks.filter(task => {
-    const matchesFilter =
-      filter === 'all' ||
-      (filter === 'completed' && task.completed) ||
-      (filter === 'active' && !task.completed);
-    const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
 
   return (
     <div className="App">
-      <h1 className="app-title">🌸 My Task Tracker</h1>
+      <h1 className="app-title">🌸 Task Tracker</h1>
 
       <div className="input-container">
         <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="✍️ Add a new task..."
+          placeholder="Add a new task..."
         />
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         <select value={priority} onChange={(e) => setPriority(e.target.value)}>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
@@ -99,18 +78,15 @@ function App() {
 
       <TaskFilter filter={filter} setFilter={setFilter} />
 
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <TaskList
-          tasks={filteredTasks}
-          toggleTaskCompletion={toggleTaskCompletion}
-          deleteTask={deleteTask}
-          editTask={editTask}
-        />
-      </DragDropContext>
-
-      {filteredTasks.length === 0 && (
-        <p className="empty-msg">✨ No tasks yet. Add one to get started!</p>
-      )}
+      <TaskList
+        tasks={tasks}          // pass full array
+        setTasks={setTasks}    // required for drag-and-drop
+        filter={filter}
+        searchTerm={searchTerm}
+        toggleTaskCompletion={toggleTaskCompletion}
+        deleteTask={deleteTask}
+        editTask={editTask}
+      />
     </div>
   );
 }

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Draggable } from '@hello-pangea/dnd';
+import React, { useState } from "react";
 
-function Task({ task, index, toggleTaskCompletion, deleteTask, editTask }) {
+function Task({ task, toggleTaskCompletion, deleteTask, editTask }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newText, setNewText] = useState(task.text);
 
@@ -10,52 +9,30 @@ function Task({ task, index, toggleTaskCompletion, deleteTask, editTask }) {
     setIsEditing(false);
   };
 
-  const priorityColors = {
-    low: '#10b981',
-    medium: '#facc15',
-    high: '#ef4444'
-  };
-
   return (
-    <Draggable draggableId={task.id.toString()} index={index}>
-      {(provided) => (
-        <li
-          className={`task-item ${task.completed ? 'completed' : ''}`}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-        >
-          {isEditing ? (
-            <input
-              type="text"
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              onBlur={handleEdit}
-              autoFocus
-            />
-          ) : (
-            <div className="task-text" onClick={() => toggleTaskCompletion(task.id)}>
-              {task.text}
-              {task.dueDate && <span className="due-date"> - Due: {task.dueDate}</span>}
-            </div>
-          )}
-
-          <span
-            className="priority-badge"
-            style={{ backgroundColor: priorityColors[task.priority] }}
-          >
+    <li className={`task-item ${task.completed ? 'completed' : ''}`}>
+      {isEditing ? (
+        <input
+          type="text"
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)}
+          onBlur={handleEdit}
+          autoFocus
+        />
+      ) : (
+        <span onClick={() => toggleTaskCompletion(task.id)}>
+          {task.text}
+          <span className={`priority-indicator priority-${task.priority}`}>
             {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
           </span>
-
-          <div className="task-btns">
-            <button onClick={() => setIsEditing(!isEditing)}>
-              {isEditing ? 'Save' : 'Edit'}
-            </button>
-            <button onClick={() => deleteTask(task.id)}>Delete</button>
-          </div>
-        </li>
+          {task.dueDate && ` - Due: ${task.dueDate}`}
+        </span>
       )}
-    </Draggable>
+      <button onClick={() => setIsEditing(!isEditing)}>
+        {isEditing ? "Save" : "Edit"}
+      </button>
+      <button onClick={() => deleteTask(task.id)}>Delete</button>
+    </li>
   );
 }
 
