@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Expense Tracker Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center font-sans p-6">
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6 font-sans">
+  <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full p-8 border border-gray-100">
+    <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">Expense Tracker Dashboard</h1>
 
-  <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-8 border border-gray-100">
-    <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">
-      Expense Tracker Dashboard
-    </h1>
-
-    <!-- Balance Section -->
+    <!-- Balance Summary -->
     <div class="grid grid-cols-3 gap-4 mb-8 text-center">
       <div class="bg-gray-100 p-4 rounded-xl">
         <h2 class="text-sm font-semibold text-gray-600">Balance</h2>
@@ -47,11 +45,17 @@
     </div>
 
     <!-- Transaction History -->
-    <div class="p-6 rounded-xl bg-white border border-gray-100">
+    <div class="p-6 rounded-xl bg-white border border-gray-100 mb-8">
       <h2 class="text-lg font-semibold text-gray-800 mb-4">Transaction History</h2>
       <ul id="transaction-list" class="space-y-3">
         <li class="text-center text-sm text-gray-400">No transactions yet</li>
       </ul>
+    </div>
+
+    <!-- Graph Section -->
+    <div class="p-6 rounded-xl bg-gray-50 border border-gray-100 mb-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Income vs Expense Chart</h2>
+      <canvas id="expenseChart" height="120"></canvas>
     </div>
 
     <!-- Footer -->
@@ -67,11 +71,35 @@
     const incomeEl = document.getElementById('income');
     const expenseEl = document.getElementById('expense');
     const dateInput = document.getElementById('date');
+    const ctx = document.getElementById('expenseChart').getContext('2d');
 
     let transactions = [];
-
-    // Default date: today
+    let editingIndex = null;
     dateInput.valueAsDate = new Date();
+
+    // Chart setup
+    const expenseChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Income', 'Expense'],
+        datasets: [{
+          label: 'Money Flow',
+          data: [0, 0],
+          backgroundColor: ['#22c55e', '#ef4444'],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    function updateChart(income, expense) {
+      expenseChart.data.datasets[0].data = [income, expense];
+      expenseChart.update();
+    }
 
     function updateUI() {
       list.innerHTML = '';
@@ -100,7 +128,6 @@
         `;
 
         list.appendChild(li);
-
         if (t.type === 'income') income += t.amount;
         else expense += t.amount;
       });
@@ -109,6 +136,7 @@
       balanceEl.textContent = `$${balance}`;
       incomeEl.textContent = `+$${income}`;
       expenseEl.textContent = `-$${expense}`;
+      updateChart(income, expense);
     }
 
     form.addEventListener('submit', e => {
@@ -120,9 +148,15 @@
 
       if (!description || isNaN(amount)) return;
 
-      transactions.push({ description, amount, type, date });
+      if (editingIndex !== null) {
+        transactions[editingIndex] = { description, amount, type, date };
+        editingIndex = null;
+      } else {
+        transactions.push({ description, amount, type, date });
+      }
+
       form.reset();
-      dateInput.valueAsDate = new Date(); // reset to today
+      dateInput.valueAsDate = new Date();
       updateUI();
     });
 
@@ -137,8 +171,7 @@
       document.getElementById('amount').value = t.amount;
       document.getElementById('type').value = t.type;
       document.getElementById('date').value = t.date;
-      transactions.splice(index, 1);
-      updateUI();
+      editingIndex = index;
     }
   </script>
 </body>
