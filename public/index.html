@@ -1,43 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center font-sans p-6">
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+  <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-8 border border-gray-100">
+    <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">
+      Expense Tracker Dashboard
+    </h1>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <!-- Balance Section -->
+    <div class="grid grid-cols-3 gap-4 mb-8 text-center">
+      <div class="bg-gray-100 p-4 rounded-xl">
+        <h2 class="text-sm font-semibold text-gray-600">Balance</h2>
+        <p id="balance" class="text-2xl font-bold text-gray-800 mt-2">$0</p>
+      </div>
+      <div class="bg-green-50 p-4 rounded-xl">
+        <h2 class="text-sm font-semibold text-gray-600">Income</h2>
+        <p id="income" class="text-2xl font-bold text-green-600 mt-2">+$0</p>
+      </div>
+      <div class="bg-red-50 p-4 rounded-xl">
+        <h2 class="text-sm font-semibold text-gray-600">Expense</h2>
+        <p id="expense" class="text-2xl font-bold text-red-600 mt-2">-$0</p>
+      </div>
+    </div>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+    <!-- Add Transaction -->
+    <div class="bg-gray-50 p-6 rounded-xl mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Add New Transaction</h2>
+      <form id="transaction-form" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+        <input id="description" type="text" placeholder="Description" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none col-span-2" required>
+        <input id="amount" type="number" placeholder="Amount" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none" required>
+        <select id="type" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none">
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+        <input id="date" type="date" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none" required>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
+          Add
+        </button>
+      </form>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="p-6 rounded-xl bg-white border border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Transaction History</h2>
+      <ul id="transaction-list" class="space-y-3">
+        <li class="text-center text-sm text-gray-400">No transactions yet</li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-gray-500 mt-6">
+      Built with ❤️ by <span class="font-semibold text-indigo-600">Eden Neker</span>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('transaction-form');
+    const list = document.getElementById('transaction-list');
+    const balanceEl = document.getElementById('balance');
+    const incomeEl = document.getElementById('income');
+    const expenseEl = document.getElementById('expense');
+    const dateInput = document.getElementById('date');
+
+    let transactions = [];
+
+    // Default date: today
+    dateInput.valueAsDate = new Date();
+
+    function updateUI() {
+      list.innerHTML = '';
+      let income = 0, expense = 0;
+
+      if (transactions.length === 0) {
+        list.innerHTML = '<li class="text-center text-sm text-gray-400">No transactions yet</li>';
+      }
+
+      transactions.forEach((t, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition';
+
+        li.innerHTML = `
+          <div>
+            <p class="font-medium text-gray-800">${t.description}</p>
+            <p class="text-sm text-gray-500">${t.date}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="${t.type === 'income' ? 'text-green-600' : 'text-red-600'} font-medium">
+              ${t.type === 'income' ? '+' : '-'}$${t.amount}
+            </span>
+            <button onclick="editTransaction(${index})" class="text-blue-600 hover:text-blue-800 text-sm">Edit</button>
+            <button onclick="deleteTransaction(${index})" class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+          </div>
+        `;
+
+        list.appendChild(li);
+
+        if (t.type === 'income') income += t.amount;
+        else expense += t.amount;
+      });
+
+      const balance = income - expense;
+      balanceEl.textContent = `$${balance}`;
+      incomeEl.textContent = `+$${income}`;
+      expenseEl.textContent = `-$${expense}`;
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const description = document.getElementById('description').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const type = document.getElementById('type').value;
+      const date = document.getElementById('date').value;
+
+      if (!description || isNaN(amount)) return;
+
+      transactions.push({ description, amount, type, date });
+      form.reset();
+      dateInput.valueAsDate = new Date(); // reset to today
+      updateUI();
+    });
+
+    function deleteTransaction(index) {
+      transactions.splice(index, 1);
+      updateUI();
+    }
+
+    function editTransaction(index) {
+      const t = transactions[index];
+      document.getElementById('description').value = t.description;
+      document.getElementById('amount').value = t.amount;
+      document.getElementById('type').value = t.type;
+      document.getElementById('date').value = t.date;
+      transactions.splice(index, 1);
+      updateUI();
+    }
+  </script>
+</body>
 </html>

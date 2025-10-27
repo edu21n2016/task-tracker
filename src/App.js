@@ -1,92 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import TaskList from './TaskList';
-import TaskFilter from './TaskFilter';
+import React, { useState } from "react";
+import TransactionForm from "./components/TransactionForm";
+import TransactionList from "./components/TransactionList";
+import Summary from "./components/Summary";
 
 function App() {
-  const [tasks, setTasks] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('medium');
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [transactions, setTransactions] = useState([]);
 
-  useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    setTasks(storedTasks);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
-
-  const handleAddTask = () => {
-    if (!inputValue.trim()) return;
-
-    const newTask = {
-      id: Date.now(),
-      text: inputValue.trim(),
-      completed: false,
-      dueDate,
-      priority,
-    };
-
-    setTasks(prev => [...prev, newTask]);
-    setInputValue('');
-    setDueDate('');
-    setPriority('medium');
+  const addTransaction = (transaction) => {
+    setTransactions([...transactions, transaction]);
   };
 
-  const toggleTaskCompletion = (id) => {
-    setTasks(prev => prev.map(task => task.id === id ? { ...task, completed: !task.completed } : task));
+  const deleteTransaction = (id) => {
+    setTransactions(transactions.filter((t) => t.id !== id));
   };
 
-  const deleteTask = (id) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
-  };
+  const income = transactions
+    .filter((t) => t.type === "income")
+    .reduce((acc, t) => acc + Number(t.amount), 0);
 
-  const editTask = (id, newText) => {
-    setTasks(prev => prev.map(task => task.id === id ? { ...task, text: newText } : task));
-  };
+  const expense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+
+  const balance = income - expense;
 
   return (
-    <div className="App">
-      <h1 className="app-title">🌸 Task Tracker</h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-400 text-gray-900 font-[Poppins] flex flex-col items-center py-10 px-4">
+      <div className="bg-white/20 backdrop-blur-md shadow-2xl rounded-3xl w-full max-w-5xl p-8 md:p-12 border border-white/30">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white text-center mb-10 tracking-tight drop-shadow-lg animate-fade-in">
+          💸 Expense Tracker Dashboard
+        </h1>
 
-      <div className="input-container">
-        <input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Add a new task..."
-        />
-        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-        <button className="add-btn" onClick={handleAddTask}>+ Add</button>
+        {/* Summary Section */}
+        <Summary income={income} expense={expense} balance={balance} />
+
+        {/* Content Layout */}
+        <div className="mt-10 grid md:grid-cols-2 gap-10">
+          <TransactionForm onAdd={addTransaction} />
+          <TransactionList
+            transactions={transactions}
+            onDelete={deleteTransaction}
+          />
+        </div>
       </div>
 
-      <input
-        type="text"
-        className="search-bar"
-        placeholder="🔍 Search tasks..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <TaskFilter filter={filter} setFilter={setFilter} />
-
-      <TaskList
-        tasks={tasks}          // pass full array
-        setTasks={setTasks}    // required for drag-and-drop
-        filter={filter}
-        searchTerm={searchTerm}
-        toggleTaskCompletion={toggleTaskCompletion}
-        deleteTask={deleteTask}
-        editTask={editTask}
-      />
+      <footer className="mt-10 text-white/80 text-sm">
+        Built with ❤️ by <span className="font-semibold">Eden Neker</span>
+      </footer>
     </div>
   );
 }
