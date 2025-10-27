@@ -1,178 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expense Tracker Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expense Tracker Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #eef2f3, #8e9eab);
+    margin: 0;
+    padding: 0;
+    color: #222;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 3rem auto;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 2.5rem 3rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #2b3a55;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+  }
+
+  .summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    flex: 1;
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 4px 4px 10px #ccc, -4px -4px 10px #fff;
+    transition: transform 0.2s, box-shadow 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  .balance { color: #2a9d8f; font-weight: 700; font-size: 1.5rem; }
+  .income { color: #00796b; font-weight: 700; }
+  .expense { color: #c62828; font-weight: 700; }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  input, select, button {
+    padding: 0.8rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+  }
+
+  input:focus, select:focus {
+    border-color: #2a9d8f;
+    box-shadow: 0 0 0 2px #2a9d8f33;
+  }
+
+  button {
+    background: linear-gradient(90deg, #2a9d8f, #1e88e5);
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: linear-gradient(90deg, #1e88e5, #2a9d8f);
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    background: #ffffff;
+    margin-bottom: 0.8rem;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+  }
+
+  li:hover {
+    transform: translateY(-3px);
+    background: #f9fbff;
+  }
+
+  .editable {
+    outline: none;
+  }
+
+  .actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .actions button:hover {
+    color: #2a9d8f;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  #chartContainer {
+    margin-top: 2.5rem;
+  }
+
+  canvas {
+    max-width: 100%;
+    height: 180px !important;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeInUp 300ms ease both;
+  }
+</style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6 font-sans">
-  <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full p-8 border border-gray-100">
-    <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">Expense Tracker Dashboard</h1>
+<body>
+  <div class="container">
+    <h1>Expense Tracker Dashboard</h1>
 
-    <!-- Balance Summary -->
-    <div class="grid grid-cols-3 gap-4 mb-8 text-center">
-      <div class="bg-gray-100 p-4 rounded-xl">
-        <h2 class="text-sm font-semibold text-gray-600">Balance</h2>
-        <p id="balance" class="text-2xl font-bold text-gray-800 mt-2">$0</p>
+    <div class="summary">
+      <div class="card">
+        <h3>Balance</h3>
+        <p id="balance" class="balance"><span class="value" data-value="0">$0</span></p>
       </div>
-      <div class="bg-green-50 p-4 rounded-xl">
-        <h2 class="text-sm font-semibold text-gray-600">Income</h2>
-        <p id="income" class="text-2xl font-bold text-green-600 mt-2">+$0</p>
+      <div class="card">
+        <h3>Income</h3>
+        <p id="income" class="income"><span class="value" data-value="0">+$0</span></p>
       </div>
-      <div class="bg-red-50 p-4 rounded-xl">
-        <h2 class="text-sm font-semibold text-gray-600">Expense</h2>
-        <p id="expense" class="text-2xl font-bold text-red-600 mt-2">-$0</p>
+      <div class="card">
+        <h3>Expense</h3>
+        <p id="expense" class="expense"><span class="value" data-value="0">-$0</span></p>
       </div>
     </div>
 
-    <!-- Add Transaction -->
-    <div class="bg-gray-50 p-6 rounded-xl mb-8">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Add New Transaction</h2>
-      <form id="transaction-form" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-        <input id="description" type="text" placeholder="Description" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none col-span-2" required>
-        <input id="amount" type="number" placeholder="Amount" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none" required>
-        <select id="type" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <input id="date" type="date" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-300 outline-none" required>
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
-          Add
-        </button>
-      </form>
+    <form id="transaction-form">
+      <input type="text" id="description" placeholder="Description" required />
+      <input type="number" id="amount" placeholder="Amount" required />
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <input type="date" id="date" required />
+      <button type="submit">Add</button>
+    </form>
+
+    <ul id="transaction-list"></ul>
+
+    <div id="chartContainer">
+      <canvas id="myChart"></canvas>
     </div>
 
-    <!-- Transaction History -->
-    <div class="p-6 rounded-xl bg-white border border-gray-100 mb-8">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Transaction History</h2>
-      <ul id="transaction-list" class="space-y-3">
-        <li class="text-center text-sm text-gray-400">No transactions yet</li>
-      </ul>
-    </div>
-
-    <!-- Graph Section -->
-    <div class="p-6 rounded-xl bg-gray-50 border border-gray-100 mb-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Income vs Expense Chart</h2>
-      <canvas id="expenseChart" height="120"></canvas>
-    </div>
-
-    <!-- Footer -->
-    <footer class="text-center text-sm text-gray-500 mt-6">
-      Built with ❤️ by <span class="font-semibold text-indigo-600">Eden Neker</span>
-    </footer>
+    <footer>Built with 💙 by Eden Neker</footer>
   </div>
 
   <script>
-    const form = document.getElementById('transaction-form');
-    const list = document.getElementById('transaction-list');
-    const balanceEl = document.getElementById('balance');
-    const incomeEl = document.getElementById('income');
-    const expenseEl = document.getElementById('expense');
-    const dateInput = document.getElementById('date');
-    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const form = document.getElementById("transaction-form");
+    const list = document.getElementById("transaction-list");
+    const balance = document.getElementById("balance");
+    const incomeDisplay = document.getElementById("income");
+    const expenseDisplay = document.getElementById("expense");
+    const ctx = document.getElementById("myChart").getContext("2d");
 
-    let transactions = [];
-    let editingIndex = null;
-    dateInput.valueAsDate = new Date();
+    let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
-    // Chart setup
-    const expenseChart = new Chart(ctx, {
-      type: 'doughnut',
+    const chart = new Chart(ctx, {
+      type: "doughnut",
       data: {
-        labels: ['Income', 'Expense'],
+        labels: ["Income", "Expense"],
         datasets: [{
-          label: 'Money Flow',
           data: [0, 0],
-          backgroundColor: ['#22c55e', '#ef4444'],
-          hoverOffset: 4
+          backgroundColor: ["#2a9d8f", "#c62828"],
+          borderWidth: 1
         }]
       },
       options: {
-        plugins: {
-          legend: { position: 'bottom' }
-        }
+        cutout: "65%",
+        plugins: { legend: { position: "bottom" } }
       }
     });
 
-    function updateChart(income, expense) {
-      expenseChart.data.datasets[0].data = [income, expense];
-      expenseChart.update();
+    function updateChart() {
+      const income = transactions.filter(t => t.type === "income").reduce((a, b) => a + b.amount, 0);
+      const expense = transactions.filter(t => t.type === "expense").reduce((a, b) => a + b.amount, 0);
+      chart.data.datasets[0].data = [income, expense];
+      chart.update();
     }
 
-    function updateUI() {
-      list.innerHTML = '';
-      let income = 0, expense = 0;
-
-      if (transactions.length === 0) {
-        list.innerHTML = '<li class="text-center text-sm text-gray-400">No transactions yet</li>';
-      }
-
+    function renderTransactions() {
+      list.innerHTML = "";
       transactions.forEach((t, index) => {
-        const li = document.createElement('li');
-        li.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition';
-
+        const li = document.createElement("li");
+        const dateText = new Date(t.date).toLocaleDateString(undefined, { month:'short', day:'numeric' });
+        const amountClass = t.type === "income" ? "amt income" : "amt expense";
+        li.className = "fade-in";
         li.innerHTML = `
-          <div>
-            <p class="font-medium text-gray-800">${t.description}</p>
-            <p class="text-sm text-gray-500">${t.date}</p>
+          <div class="left">
+            <div>
+              <div class="desc">${t.description}</div>
+              <div class="meta">${dateText} · <small>(${t.type})</small></div>
+            </div>
           </div>
-          <div class="flex items-center gap-4">
-            <span class="${t.type === 'income' ? 'text-green-600' : 'text-red-600'} font-medium">
-              ${t.type === 'income' ? '+' : '-'}$${t.amount}
-            </span>
-            <button onclick="editTransaction(${index})" class="text-blue-600 hover:text-blue-800 text-sm">Edit</button>
-            <button onclick="deleteTransaction(${index})" class="text-red-600 hover:text-red-800 text-sm">Delete</button>
+          <div style="display:flex; align-items:center; gap:0.8rem">
+            <div class="${amountClass} amt">${t.type === 'income' ? '+' : '-'}$${Number(t.amount).toLocaleString()}</div>
+            <div class="actions">
+              <button onclick="editTransaction(${index}, this)">Edit</button>
+              <button onclick="deleteTransaction(${index})">Delete</button>
+            </div>
           </div>
         `;
-
         list.appendChild(li);
-        if (t.type === 'income') income += t.amount;
-        else expense += t.amount;
       });
-
-      const balance = income - expense;
-      balanceEl.textContent = `$${balance}`;
-      incomeEl.textContent = `+$${income}`;
-      expenseEl.textContent = `-$${expense}`;
-      updateChart(income, expense);
+      updateValues();
+      updateChart();
     }
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const description = document.getElementById('description').value.trim();
-      const amount = parseFloat(document.getElementById('amount').value);
-      const type = document.getElementById('type').value;
-      const date = document.getElementById('date').value;
+    function formatCurrency(num) {
+      const abs = Math.abs(num);
+      const formatted = abs.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+      return (num > 0 ? '+' : (num < 0 ? '-' : '')) + formatted.replace(/^[+\-]/, '');
+    }
 
-      if (!description || isNaN(amount)) return;
-
-      if (editingIndex !== null) {
-        transactions[editingIndex] = { description, amount, type, date };
-        editingIndex = null;
-      } else {
-        transactions.push({ description, amount, type, date });
+    function animateValueSpan(spanEl, start, end, duration = 450) {
+      const startTs = performance.now();
+      const sign = end < 0 ? -1 : 1;
+      const absEnd = Math.abs(end);
+      const absStart = Math.abs(start);
+      function step(now) {
+        const t = Math.min(1, (now - startTs) / duration);
+        const eased = 1 - (1 - t) * (1 - t);
+        const current = (absStart + (absEnd - absStart) * eased) * sign;
+        spanEl.textContent = formatCurrency(current);
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          spanEl.textContent = formatCurrency(end);
+          spanEl.dataset.value = String(end);
+        }
       }
+      requestAnimationFrame(step);
+    }
 
+    function updateValues() {
+      const income = transactions.filter(t => t.type === "income").reduce((a, b) => a + b.amount, 0);
+      const expense = transactions.filter(t => t.type === "expense").reduce((a, b) => a + b.amount, 0);
+      const bal = income - expense;
+
+      const balSpan = balance.querySelector('.value');
+      const incSpan = incomeDisplay.querySelector('.value');
+      const expSpan = expenseDisplay.querySelector('.value');
+
+      const prevBal = parseFloat(balSpan.dataset.value || 0);
+      const prevInc = parseFloat(incSpan.dataset.value || 0);
+      const prevExp = parseFloat(expSpan.dataset.value || 0);
+
+      animateValueSpan(balSpan, prevBal, bal, 520);
+      animateValueSpan(incSpan, prevInc, income, 420);
+      animateValueSpan(expSpan, prevExp, expense, 420);
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const desc = description.value.trim();
+      const amt = Math.abs(Number(amount.value));
+      const type = document.getElementById("type").value;
+      const date = document.getElementById("date").value;
+      if (!desc || !amt) return;
+
+      transactions.push({ description: desc, amount: amt, type, date });
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+      renderTransactions();
       form.reset();
-      dateInput.valueAsDate = new Date();
-      updateUI();
     });
 
     function deleteTransaction(index) {
       transactions.splice(index, 1);
-      updateUI();
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+      renderTransactions();
     }
 
-    function editTransaction(index) {
-      const t = transactions[index];
-      document.getElementById('description').value = t.description;
-      document.getElementById('amount').value = t.amount;
-      document.getElementById('type').value = t.type;
-      document.getElementById('date').value = t.date;
-      editingIndex = index;
+    function editTransaction(index, btn) {
+      const li = btn.closest("li");
+      const desc = li.querySelector(".desc");
+      const amt = li.querySelector(".amt");
+      if (btn.textContent === "Edit") {
+        desc.contentEditable = true;
+        amt.contentEditable = true;
+        desc.focus();
+        btn.textContent = "Save";
+        li.style.background = "#fff3e0";
+      } else {
+        desc.contentEditable = false;
+        amt.contentEditable = false;
+        transactions[index].description = desc.textContent.trim();
+        transactions[index].amount = parseFloat(amt.textContent.replace("$", "").trim()) || 0;
+        localStorage.setItem("transactions", JSON.stringify(transactions));
+        btn.textContent = "Edit";
+        li.style.background = "";
+        renderTransactions();
+      }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      balance.querySelector('.value').dataset.value = "0";
+      incomeDisplay.querySelector('.value').dataset.value = "0";
+      expenseDisplay.querySelector('.value').dataset.value = "0";
+      renderTransactions();
+    });
   </script>
 </body>
 </html>

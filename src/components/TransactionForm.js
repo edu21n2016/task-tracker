@@ -4,6 +4,7 @@ function TransactionForm({ onAdd }) {
   const [text, setText] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("income");
+  const [category, setCategory] = useState("Food"); // Added category state
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,9 +14,11 @@ function TransactionForm({ onAdd }) {
       text,
       amount: parseFloat(amount),
       type,
+      category, // Include category in the transaction
     });
     setText("");
     setAmount("");
+    setCategory("Food"); // Reset category to default
   };
 
   return (
@@ -38,6 +41,7 @@ function TransactionForm({ onAdd }) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+        
         <select
           className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
           value={type}
@@ -46,6 +50,19 @@ function TransactionForm({ onAdd }) {
           <option value="income">💰 Income</option>
           <option value="expense">💸 Expense</option>
         </select>
+
+        <select
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="Food">🍔 Food</option>
+          <option value="Transport">🚗 Transport</option>
+          <option value="Bills">🧾 Bills</option>
+          <option value="Entertainment">🎉 Entertainment</option>
+          <option value="Other">🔧 Other</option>
+        </select>
+
         <button
           type="submit"
           className="bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-transform duration-200 hover:scale-[1.02]"

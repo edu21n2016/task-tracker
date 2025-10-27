@@ -23,11 +23,7 @@ function TransactionList({ transactions, onDelete }) {
             >
               <span className="text-gray-700 font-medium">{t.text}</span>
               <div className="flex items-center gap-3">
-                <span
-                  className={`font-semibold ${
-                    t.type === "income" ? "text-green-600" : "text-red-600"
-                  }`}
-                >
+                <span className={`font-semibold ${t.type === "income" ? "text-green-600" : "text-red-600"}`}>
                   {t.type === "income" ? "+" : "-"}${t.amount}
                 </span>
                 <button

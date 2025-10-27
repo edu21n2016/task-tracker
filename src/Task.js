@@ -9,6 +9,10 @@ function Task({ task, toggleTaskCompletion, deleteTask, editTask }) {
     setIsEditing(false);
   };
 
+  // defensive defaults for priority and dueDate to avoid runtime errors
+  const priority = (task && task.priority) ? task.priority : 'low';
+  const dueDate = (task && task.dueDate) ? task.dueDate : '';
+
   return (
     <li className={`task-item ${task.completed ? 'completed' : ''}`}>
       {isEditing ? (
@@ -22,10 +26,10 @@ function Task({ task, toggleTaskCompletion, deleteTask, editTask }) {
       ) : (
         <span onClick={() => toggleTaskCompletion(task.id)}>
           {task.text}
-          <span className={`priority-indicator priority-${task.priority}`}>
-            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+          <span className={`priority-indicator priority-${priority}`}>
+            {priority.charAt(0).toUpperCase() + priority.slice(1)}
           </span>
-          {task.dueDate && ` - Due: ${task.dueDate}`}
+          {dueDate && ` - Due: ${dueDate}`}
         </span>
       )}
       <button onClick={() => setIsEditing(!isEditing)}>
