@@ -2,30 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 1.5s ease-in-out;
-  }
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+/* custom */
+:root {
+  --glass: rgba(255,255,255,0.65);
+  --glass-dark: rgba(20,20,25,0.5);
 }
 
-/* Custom scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+/* page background gradient (light/dark) */
+body {
+  transition: background-color 300ms ease, color 300ms ease;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #6366f1, #a855f7);
-  border-radius: 10px;
+
+/* nice glossy container */
+.app-shell {
+  @apply max-w-6xl mx-auto p-6 md:p-10 rounded-2xl shadow-2xl;
+  background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
+  backdrop-filter: blur(8px);
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+
+/* dark mode override */
+.dark .app-shell {
+  background: linear-gradient(135deg, rgba(20,20,25,0.6), rgba(20,20,30,0.35));
+}
+
+/* summary card */
+.summary-card {
+  @apply rounded-xl p-6 shadow-lg text-center;
+  background: rgba(255,255,255,0.8);
+}
+.dark .summary-card {
+  background: rgba(255,255,255,0.03);
+}
+
+/* input style */
+.input-base {
+  @apply w-full p-3 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400;
+}
+
+/* button primary */
+.btn-primary {
+  @apply w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700;
+}
+
+/* small UI tweaks */
+.nav-link-active {
+  @apply text-white font-semibold underline decoration-white/40;
 }
